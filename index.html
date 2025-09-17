@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Time Tracker</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            padding: 12px 25px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        #download-btn {
+            background-color: #27ae60;
+        }
+        
+        #download-btn:hover {
+            background-color: #219653;
+        }
+        
+        .table-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        input[type="number"] {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .summary {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .stat-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stat-box h3 {
+            color: #7f8c8d;
+            font-size: 1rem;
+            margin-bottom: 8px;
+        }
+        
+        .stat-box p {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: white;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            th, td {
+                padding: 8px 10px;
+            }
+            
+            input[type="number"] {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Screen Time Tracker</h1>
+            <p class="description">track your screen time</p>
+            <div class="controls">
+                <button id="add-row-btn">Add New Day</button>
+                <button id="download-btn">Download Data</button>
+                <button id="reset-btn">Reset Data</button>
+            </div>
+        </header>
+        
+        <div class="table-container">
+            <table id="screen-time-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Social Media (mins)</th>
+                        <th>Entertainment (mins)</th>
+                        <th>Productivity (mins)</th>
+                        <th>Gaming (mins)</th>
+                        <th>Other (mins)</th>
+                        <th>Total (hours)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Table rows will be generated here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="summary">
+            <h2>Screen Time Summary</h2>
+            <div class="summary-stats">
+                <div class="stat-box">
+                    <h3>Average Daily Screen Time</h3>
+                    <p id="average-time">0 hours</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Total Screen Time</h3>
+                    <p id="total-time">0 hours</p>
+                </div>
+                <div class="stat-box">
+                    <h3>Most Used Category</h3>
+                    <p id="most-used">-</p>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Screen Time Tracker &copy; 2025</p>
+        </footer>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableBody = document.querySelector('#screen-time-table tbody');
+        const addRowBtn = document.getElementById('add-row-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        
+        // Initialize the table
+        initializeTable();
+        
+        // Add event listeners
+        addRowBtn.addEventListener('click', addNewDay);
+        downloadBtn.addEventListener('click', downloadData);
+        resetBtn.addEventListener('click', resetData);
+        
+        // Initialize the table with data
+        function initializeTable() {
+            // Clear existing rows
+            tableBody.innerHTML = '';
+            
+            // Check if we have saved data
+            const savedData = localStorage.getItem('screenTimeData');
+            
+            if (savedData) {
+                // Load existing data if available
+                const data = JSON.parse(savedData);
+                
+                // Populate the table with saved data
+                data.forEach(day => {
+                    addRowToTable(day);
+                });
+            }
+            // If no saved data, the table will remain empty
+            
+            updateSummary();
+        }
+		
+            function generateInitialData() {
+                const data = [];
+                const today = new Date();
+                
+                for (let i = 13; i >= 0; i--) {
+                    const date = new Date();
+                    date.setDate(today.getDate() - i);
+                    
+                    data.push({
+                        date: date.toISOString().split('T')[0],
+                        social: Math.floor(Math.random() * 120),
+                        entertainment: Math.floor(Math.random() * 120),
+                        productivity: Math.floor(Math.random() * 120),
+                        gaming: Math.floor(Math.random() * 120),
+                        other: Math.floor(Math.random() * 60)
+                    });
+                }
+                
+                return data;
+            }
+            
+            function addRowToTable(dayData) {
+                const row = document.createElement('tr');
+                
+                // Calculate total in hours
+                const totalMins = dayData.social + dayData.entertainment + 
+                                 dayData.productivity + dayData.gaming + dayData.other;
+                const totalHours = (totalMins / 60).toFixed(1);
+                
+                row.innerHTML = `
+                    <td>${formatDate(dayData.date)}</td>
+                    <td><input type="number" min="0" value="${dayData.social}" data-category="social"></td>
+                    <td><input type="number" min="0" value="${dayData.entertainment}" data-category="entertainment"></td>
+                    <td><input type="number" min="0" value="${dayData.productivity}" data-category="productivity"></td>
+                    <td><input type="number" min="0" value="${dayData.gaming}" data-category="gaming"></td>
+                    <td><input type="number" min="0" value="${dayData.other}" data-category="other"></td>
+                    <td>${totalHours}</td>
+                `;
+                
+                // Add input event listeners to update totals
+                const inputs = row.querySelectorAll('input');
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        updateRowTotal(this.parentNode.parentNode);
+                        updateSummary();
+                        saveData();
+                    });
+                });
+                
+                tableBody.appendChild(row);
+            }
+            
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    year: 'numeric', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+            
+            function updateRowTotal(row) {
+                const inputs = row.querySelectorAll('input');
+                let totalMins = 0;
+                
+                inputs.forEach(input => {
+                    totalMins += parseInt(input.value) || 0;
+                });
+                
+                const totalHours = (totalMins / 60).toFixed(1);
+                row.lastElementChild.textContent = totalHours;
+            }
+            
+            function addNewDay() {
+                const today = new Date();
+                const dateString = today.toISOString().split('T')[0];
+                
+                const newDay = {
+                    date: dateString,
+                    social: 0,
+                    entertainment: 0,
+                    productivity: 0,
+                    gaming: 0,
+                    other: 0
+                };
+                
+                addRowToTable(newDay);
+                
+                // Save to localStorage
+                const savedData = localStorage.getItem('screenTimeData');
+                let data = savedData ? JSON.parse(savedData) : [];
+                data.push(newDay);
+                localStorage.setItem('screenTimeData', JSON.stringify(data));
+                
+                updateSummary();
+            }
+            
+            function updateSummary() {
+                const rows = tableBody.querySelectorAll('tr');
+                let totalScreenTime = 0;
+                const categoryTotals = {
+                    social: 0,
+                    entertainment: 0,
+                    productivity: 0,
+                    gaming: 0,
+                    other: 0
+                };
+                
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll('input');
+                    inputs.forEach(input => {
+                        const value = parseInt(input.value) || 0;
+                        const category = input.dataset.category;
+                        categoryTotals[category] += value;
+                    });
+                    
+                    const rowTotal = parseFloat(row.lastElementChild.textContent);
+                    totalScreenTime += rowTotal;
+                });
+                
+                const averageTime = (totalScreenTime / rows.length).toFixed(1);
+                
+                document.getElementById('average-time').textContent = `${averageTime} hours`;
+                document.getElementById('total-time').textContent = `${totalScreenTime.toFixed(1)} hours`;
+                
+                // Find most used category
+                let mostUsed = '';
+                let maxTime = 0;
+                
+                for (const category in categoryTotals) {
+                    if (categoryTotals[category] > maxTime) {
+                        maxTime = categoryTotals[category];
+                        mostUsed = category;
+                    }
+                }
+                
+                document.getElementById('most-used').textContent = mostUsed.charAt(0).toUpperCase() + mostUsed.slice(1);
+            }
+            
+            function saveData() {
+                const rows = tableBody.querySelectorAll('tr');
+                const data = [];
+                
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll('input');
+                    const date = row.cells[0].textContent;
+                    
+                    // Convert date back to ISO format (simplified)
+                    const dateObj = new Date(date);
+                    const isoDate = dateObj.toISOString().split('T')[0];
+                    
+                    data.push({
+                        date: isoDate,
+                        social: parseInt(inputs[0].value) || 0,
+                        entertainment: parseInt(inputs[1].value) || 0,
+                        productivity: parseInt(inputs[2].value) || 0,
+                        gaming: parseInt(inputs[3].value) || 0,
+                        other: parseInt(inputs[4].value) || 0
+                    });
+                });
+                
+                localStorage.setItem('screenTimeData', JSON.stringify(data));
+            }
+            
+            function downloadData() {
+                const rows = tableBody.querySelectorAll('tr');
+                let csvContent = "Date,Social Media (mins),Entertainment (mins),Productivity (mins),Gaming (mins),Other (mins),Total (hours)\n";
+                
+                rows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = [];
+                    
+                    cells.forEach((cell, index) => {
+                        if (index === 0) {
+                            rowData.push(`"${cell.textContent}"`);
+                        } else if (index < cells.length - 1) {
+                            rowData.push(cell.querySelector('input').value);
+                        } else {
+                            rowData.push(cell.textContent);
+                        }
+                    });
+                    
+                    csvContent += rowData.join(',') + '\n';
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                const today = new Date().toISOString().split('T')[0];
+                
+                link.setAttribute('href', url);
+                link.setAttribute('download', `screen_time_${today}.csv`);
+                link.style.visibility = 'hidden';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            function resetData() {
+                if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                    localStorage.removeItem('screenTimeData');
+                    initializeTable();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
